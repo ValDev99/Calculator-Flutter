@@ -15,15 +15,10 @@ class _CalculatorState extends State<Calculator> {
   int _counter = 0;
   int _increment = 2;
   int _clickCount = 0;
+  String _selectedOperation = 'Addition'; // Opération par défaut
   final TextEditingController _incrementController = TextEditingController();
 
-  void _incrementCounter() {
-    setState(() {
-      _counter += _increment;
-      _clickCount++;
-    });
-  }
-
+  // Fonction pour mettre à jour l'incrément
   void _updateIncrement() {
     final String inputText = _incrementController.text;
 
@@ -43,6 +38,7 @@ class _CalculatorState extends State<Calculator> {
     }
   }
 
+  // Affiche une alerte si l'incrément est 0
   void _showAlert() {
     showDialog(
       context: context,
@@ -63,6 +59,29 @@ class _CalculatorState extends State<Calculator> {
     );
   }
 
+  // Fonction pour effectuer l'opération mathématique
+  void _performOperation() {
+    setState(() {
+      _clickCount++;
+      switch (_selectedOperation) {
+        case 'Addition':
+          _counter += _increment;
+          break;
+        case 'Soustraction':
+          _counter -= _increment;
+          break;
+        case 'Multiplication':
+          _counter *= _increment;
+          break;
+        case 'Division':
+          if (_increment != 0) {
+            _counter = (_counter / _increment).floor(); // Utilisation de la division entière
+          }
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,25 +99,61 @@ class _CalculatorState extends State<Calculator> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             const SizedBox(height: 20),
-            ResultDisplay(counter: _counter, increment: _increment),
+
+            // Widget d'affichage de l'opération
+            ResultDisplay(counter: _counter, increment: _increment, operation: _selectedOperation),
+
             const SizedBox(height: 20),
 
-            // Utilisation du nouveau widget IncrementInput
+            // Widget pour modifier l'incrément
             IncrementInput(
               controller: _incrementController,
               updateIncrement: _updateIncrement,
+            ),
+
+            const SizedBox(height: 20),
+
+            // DropdownButton pour choisir l'opération
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 50),
+              child: DropdownButton<String>(
+                value: _selectedOperation,
+                items: <String>['Addition', 'Soustraction', 'Multiplication', 'Division']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedOperation = newValue!;
+                  });
+                },
+              ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Text(
-          '+$_increment', // Affiche dynamiquement la valeur de l'incrément
-          style: const TextStyle(fontSize: 24),
-        ),
+        onPressed: _performOperation,
+        tooltip: _selectedOperation,
+        child: _getOperationIcon(), // Change icon dynamically
       ),
     );
+  }
+
+  // Fonction pour obtenir l'icône du FloatingActionButton en fonction de l'opération sélectionnée
+  Icon _getOperationIcon() {
+    switch (_selectedOperation) {
+      case 'Soustraction':
+        return const Icon(Icons.remove);
+      case 'Multiplication':
+        return const Icon(Icons.clear);
+      case 'Division':
+        return const Icon(Icons.horizontal_rule);
+      default:
+        return const Icon(Icons.add);
+    }
   }
 }
