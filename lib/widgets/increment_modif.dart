@@ -5,10 +5,10 @@ class IncrementInput extends StatelessWidget {
   final Function updateIncrement;
 
   const IncrementInput({
-    Key? key,
+    super.key,
     required this.controller,
     required this.updateIncrement,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

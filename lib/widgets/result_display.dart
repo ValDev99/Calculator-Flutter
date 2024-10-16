@@ -6,11 +6,11 @@ class ResultDisplay extends StatelessWidget {
   final String operation;
 
   const ResultDisplay({
-    Key? key,
+    super.key,
     required this.counter,
     required this.increment,
     required this.operation,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
